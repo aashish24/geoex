@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/lib/geo.ext.min.js" type="text/javascript" charset="UTF8"></script>
+    <script src="/lib/geo.min.js"></script>
+    <style>
+        html{
+            height: 100%;
+        }
+    </style>
+
+</head>
+<body style="height: 100%;">
+<script>
+var myMap;
+$(function() {
+    var mapOptions = {node: '#map',
+                      zoom : 3,
+                      center : [0.0, 0.0]},
+        layer;
+    myMap = geo.map(mapOptions);
+
+    /// Resize the canvas to fill browser window dynamically
+    window.addEventListener('resize', resizeCanvas, false);
+
+    function resizeCanvas() {
+      $('#map').width('100%');
+      $('#map').height('100%');
+      updateAndDraw($('#map').width(), $('#map').height());
+    }
+
+    function updateAndDraw(width, height) {
+      myMap.resize(0, 0, width, height);
+      myMap.draw();
+    }
+
+    resizeCanvas();
+    layer = myMap.createLayer('osm');
+    myMap.draw();
+
+    $.get( "BRFSS_MMSA_2010.geojson", function (data) {
+      myMap
+        .createLayer("feature")
+          .createFeature("point")
+            .data(JSON.parse(data).features)
+            .fillColor( function (d) {
+              if (d.properties.A868_1 > d.properties.A868_2) {
+                return {r: 0.8, g:0.4, b:0.4};
+              }
+              return {r: 0.4, g:0.8, b:0.4};
+            })
+            .radius(function (d) {
+              if (d.properties.A868_1 > d.properties.A868_2) {
+                return 20;
+              }
+              return 40;
+            })
+            .position(function (d) {
+              return {x: d.properties.LON, y: d.properties.LAT};
+            });
+      myMap.draw();
+    });
+});
+</script>
+
+<div id='map'></div>
+</body>
