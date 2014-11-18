@@ -42,19 +42,34 @@ $(function() {
     $.get( "BRFSS_MMSA_2010.geojson", function (data) {
       myMap
         .createLayer("feature")
-          .createFeature("point")
+          .createFeature("point", {selectionAPI: true})
             .data(JSON.parse(data).features)
-            .fillColor( function (d) {
-              if (d.properties.A868_1 > d.properties.A868_2) {
+            .geoOn(geo.event.pointFeature.mouseover, function(d) {
+              console.log(d.data.properties);
+            })
+            .style("fillColor", function (d) {
+              if (parseFloat(d.properties.A868_1) > parseFloat(d.properties.A868_2)) {
+                return {r: 0.4, g:0.8, b:0.4};
+              }
+              return {r: 0.8, g:0.4, b:0.4};
+            })
+            .style("radius", function (d) {
+              if (parseFloat(d.properties.A868_1) > parseFloat(d.properties.A868_2)) {
+                return Math.ceil(parseFloat(d.properties.A868_1) * 0.2);
+              }
+              return Math.ceil(parseFloat(d.properties.A868_2) * 0.2);
+            })
+            .style("strokeWidth", function (d) {
+              if (parseFloat(d.properties.A868_1) > parseFloat(d.properties.A868_2)) {
+                return Math.ceil(0.2 * parseFloat(d.properties.A868_2));
+              }
+              return Math.ceil(0.2 * parseFloat(d.properties.A868_1));
+            })
+            .style("strokeColor", function (d) {
+              if (parseFloat(d.properties.A868_1) > parseFloat(d.properties.A868_2)) {
                 return {r: 0.8, g:0.4, b:0.4};
               }
               return {r: 0.4, g:0.8, b:0.4};
-            })
-            .radius(function (d) {
-              if (d.properties.A868_1 > d.properties.A868_2) {
-                return 20;
-              }
-              return 40;
             })
             .position(function (d) {
               return {x: d.properties.LON, y: d.properties.LAT};
