@@ -111,17 +111,22 @@ $(function() {
 
     $.get( "mmsa.json", function (mmsaData) {
       var stats = {};
-      mmsaData = JSON.parse(mmsaData);
+      // mmsaData = JSON.parse(mmsaData);
+      mmsaData = mmsaData.features;
 
       $.get( "BRFSS_MMSA_2010.geojson", function (data) {
-        data.forEach(function (mydata) {
-          var stateCode = mmsaData[d.properties.MMSA_numbe];
+        JSON.parse(data).features.forEach(function (mydata) {
+          var stateCode = mmsaData[mydata.properties.MMSA_Numbe];
+          console.log(mydata.properties.MMSA_Numbe);
           if (stats.hasOwnProperty(stateCode)) {
-            stats[stateCode]["yes"] += mydata.properties.A868_1;
-            stats[stateCode]["no"] += mydata.properties.A868_2;
+            stats[stateCode]["yes"] += parseFloat(mydata.properties.A868_1);
+            stats[stateCode]["no"] += parseFloat(mydata.properties.A868_2);
+            stats[stateCode]["count"] += 1;
           } else {
-            stats[stateCode]["yes"] = mydata.properties.A868_1;
-            stats[stateCode]["no"] = mydata.properties.A868_2;
+            stats[stateCode] = {};
+            stats[stateCode]["yes"] = parseFloat(mydata.properties.A868_1);
+            stats[stateCode]["no"] = parseFloat(mydata.properties.A868_2);
+            stats[stateCode]["count"] = 1;
           }
         });
         console.log(stats);
