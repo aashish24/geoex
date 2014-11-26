@@ -109,46 +109,66 @@ $(function() {
     drawChoropleth(d3Layer.renderer(), d3Layer.canvas());
     myMap.draw();
 
-    $.get( "BRFSS_MMSA_2010.geojson", function (data) {
-      myMap
-        .createLayer('feature', {renderer: 'd3Renderer'})
-          .createFeature("point", {selectionAPI: true})
-            .data(JSON.parse(data).features)
-            .geoOn(geo.event.pointFeature.mouseover, function(d) {
-              console.log(d.data.properties);
-            })
-            .style("fillOpacity", 0.6)
-            .style("fillColor", function (d) {
-              if (parseFloat(d.properties.A868_1) > parseFloat(d.properties.A868_2)) {
-                return {r: 163/255, g:227/255, b:110/255};
-              }
-              return {r: 170/255, g:92/255, b:57/255};
-            })
-            .style("radius", function (d) {
-              if (parseFloat(d.properties.A868_1) > parseFloat(d.properties.A868_2)) {
-                return Math.ceil(parseFloat(d.properties.A868_1) * 0.2);
-              }
-              return Math.ceil(parseFloat(d.properties.A868_2) * 0.2);
-            })
-            .style("strokeWidth", function (d) {
-              if (parseFloat(d.properties.A868_1) > parseFloat(d.properties.A868_2)) {
-                return Math.ceil(0.2 * parseFloat(d.properties.A868_2));
-              }
-              return Math.ceil(0.2 * parseFloat(d.properties.A868_1));
-            })
-            .style("strokeColor", function (d) {
-              if (parseFloat(d.properties.A868_1) > parseFloat(d.properties.A868_2)) {
+    $.get( "mmsa.json", function (mmsaData) {
+      var stats = {};
+      mmsaData = JSON.parse(mmsaData);
+
+      $.get( "BRFSS_MMSA_2010.geojson", function (data) {
+        myMap
+          .createLayer('feature', {renderer: 'd3Renderer'})
+            .createFeature("point", {selectionAPI: true})
+              .data(JSON.parse(data).features)
+              .geoOn(geo.event.pointFeature.mouseover, function(d) {
+                console.log(d.data.properties);
+              })
+              .style("fillOpacity", 0.6)
+              .style("fillColor", function (d) {
+                if (parseFloat(d.properties.A868_1) > parseFloat(d.properties.A868_2)) {
+                  return {r: 163/255, g:227/255, b:110/255};
+                }
                 return {r: 170/255, g:92/255, b:57/255};
-              }
-              return {r: 163/255, g:227/255, b:110/255};
-            })
-            .position(function (d) {
-              return {x: d.properties.LON, y: d.properties.LAT};
-            });
-      myMap.draw();
+              })
+              .style("radius", function (d) {
+                if (parseFloat(d.properties.A868_1) > parseFloat(d.properties.A868_2)) {
+                  return Math.ceil(parseFloat(d.properties.A868_1) * 0.2);
+                }
+                return Math.ceil(parseFloat(d.properties.A868_2) * 0.2);
+              })
+              .style("strokeWidth", function (d) {
+                if (parseFloat(d.properties.A868_1) > parseFloat(d.properties.A868_2)) {
+                  return Math.ceil(0.2 * parseFloat(d.properties.A868_2));
+                }
+                return Math.ceil(0.2 * parseFloat(d.properties.A868_1));
+              })
+              .style("strokeColor", function (d) {
+                if (parseFloat(d.properties.A868_1) > parseFloat(d.properties.A868_2)) {
+                  return {r: 170/255, g:92/255, b:57/255};
+                }
+                return {r: 163/255, g:227/255, b:110/255};
+              })
+              .position(function (d) {
+                return {x: d.properties.LON, y: d.properties.LAT};
+              });
+
+        data.forEach(function (mydata) {
+          var stateCode = mmsaData[d.properties.MMSA_numbe];
+          if (stats.hasOwnProperty(stateCode) {
+            stats[stateCode]["yes"] += d.properties.A868_1;
+            stats[stateCode]["no"] += d.properties.A868_2;
+          } else {
+            stats[stateCode]["yes"] = d.properties.A868_1;
+            stats[stateCode]["no"] = d.properties.A868_2;
+          }
+        });
+
+        console.log(stats);
+
+        myMap.draw();
+      });
     });
 });
 </script>
 
 <div id='map'></div>
 </body>
+
