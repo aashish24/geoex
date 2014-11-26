@@ -114,6 +114,18 @@ $(function() {
       mmsaData = JSON.parse(mmsaData);
 
       $.get( "BRFSS_MMSA_2010.geojson", function (data) {
+        data.forEach(function (mydata) {
+          var stateCode = mmsaData[d.properties.MMSA_numbe];
+          if (stats.hasOwnProperty(stateCode)) {
+            stats[stateCode]["yes"] += mydata.properties.A868_1;
+            stats[stateCode]["no"] += mydata.properties.A868_2;
+          } else {
+            stats[stateCode]["yes"] = mydata.properties.A868_1;
+            stats[stateCode]["no"] = mydata.properties.A868_2;
+          }
+        });
+        console.log(stats);
+
         myMap
           .createLayer('feature', {renderer: 'd3Renderer'})
             .createFeature("point", {selectionAPI: true})
@@ -149,20 +161,6 @@ $(function() {
               .position(function (d) {
                 return {x: d.properties.LON, y: d.properties.LAT};
               });
-
-        data.forEach(function (mydata) {
-          var stateCode = mmsaData[d.properties.MMSA_numbe];
-          if (stats.hasOwnProperty(stateCode) {
-            stats[stateCode]["yes"] += d.properties.A868_1;
-            stats[stateCode]["no"] += d.properties.A868_2;
-          } else {
-            stats[stateCode]["yes"] = d.properties.A868_1;
-            stats[stateCode]["no"] = d.properties.A868_2;
-          }
-        });
-
-        console.log(stats);
-
         myMap.draw();
       });
     });
