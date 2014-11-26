@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <script src="/lib/geo.ext.min.js" type="text/javascript" charset="UTF8"></script>
     <script src="/lib/geo.min.js"></script>
+    <script src="histogram.js"></script>
+
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 
@@ -16,7 +18,7 @@
     <link href="main.css" rel="stylesheet">
 
 </head>
-<body style="height: 100%;">
+<body>
 <script>
 var myMap;
 $(function() {
@@ -133,6 +135,7 @@ $(function() {
           }
         });
         console.log(stats);
+        generateHistogram('#histogram', stats);
 
         myMap
           .createLayer('feature', {renderer: 'd3Renderer'})
