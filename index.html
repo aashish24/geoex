@@ -17,11 +17,33 @@
 
     <link href="main.css" rel="stylesheet">
 
+    <link rel="stylesheet" href="/lib/jqtree.css">
+
+    <script src="/lib/tree.jquery.js"></script>
+
+    <script type="text/javascript">
+    </script>
+
 </head>
 <body>
 <script>
 var myMap;
 $(function() {
+    var data = [{
+        label: 'Layers',
+        children: [
+            { label: 'Vector', children: [] },
+            { label: 'Raster', children: [] },
+            { label: 'Table', children: [{
+              label: 'BRFSS_MMSA_2010  '
+            }
+            ] },
+        ]}];
+
+    $('#tree').tree({
+        data: data
+    });
+
     var mapOptions = {node: '#map',
                       zoom : 3,
                       center : [0.0, 0.0]},
@@ -212,6 +234,7 @@ $(function() {
     </nav>
 
     <div class="container-fluid">
+      <div id='tree'></div>
       <div id='map'></div>
       <div id='histogram'></div>
     </div>
