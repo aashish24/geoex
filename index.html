@@ -88,7 +88,7 @@ var myMap,
       'West Virginia': 'WV',
       'Wisconsin': 'WI',
       'Wyoming': 'WY'
-    };
+    }, mmsaToStateMap;
 
 function jsonToTable(node, obj) {
   var jqobj = $(node);
@@ -99,6 +99,17 @@ function jsonToTable(node, obj) {
 }
 
 function selectHistogram(obj) {
+  d3.select('#histogram').selectAll(".bar").each(function(d) {
+    d3.select(this).style("fill", "#3399FF");
+  });
+
+  d3.select('#histogram').selectAll(".bar").each(function(d) {
+    var stateCode = mmsaToStateMap[obj.MMSA];
+    if (d.state == stateCode) {
+      d3.select(this).style("fill", "red");
+      return;
+    }
+  });
 }
 
 $(function() {
@@ -124,7 +135,7 @@ $(function() {
     var mapOptions = {node: '#map',
                       zoom : 3,
                       center : [0.0, 0.0]},
-        layer, d3Layer, stats = {}, mmsaData2;
+        layer, d3Layer, stats = {};
     myMap = geo.map(mapOptions);
 
     var hisdata = [];
@@ -258,10 +269,10 @@ $(function() {
 
     $.get( "mmsa.json", function (mmsaData) {
       // mmsaData = JSON.parse(mmsaData);
-      mmsaData2 = mmsaData.features;
+      mmsaToStateMap = mmsaData.features;
       $.get( "brfss_mmsa_2003_download.json", function (data) {
         data.features.forEach(function (mydata) {
-          var stateCode = mmsaData2[mydata.properties.MMSA];
+          var stateCode = mmsaToStateMap[mydata.properties.MMSA];
           // console.log(mydata.properties.MMSA);
           if (stats.hasOwnProperty(stateCode)) {
             stats[stateCode]["yes"] += parseFloat(mydata.properties["4420_1"]);
