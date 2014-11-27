@@ -28,6 +28,15 @@
 <body>
 <script>
 var myMap;
+
+function jsonToTable(node, obj) {
+  var jqobj = $(node);
+  jqobj.empty();
+  for (var i in obj) {
+    jqobj.append('<div class="col key">' + i + '<div class="col key-value">' + obj[i]);
+  }
+}
+
 $(function() {
     var data = [{
         label: 'Layers',
@@ -293,6 +302,8 @@ $(function() {
             .createFeature("point", {selectionAPI: true})
               .data(data.features)
               .geoOn(geo.event.pointFeature.mouseover, function(d) {
+                //$("#hover-display").html(d.data.properties.MMSA);
+                jsonToTable("#hover-display", d.data.properties);
                 console.log(d.data.properties);
               })
               .style("fillOpacity", 2.0)
@@ -386,6 +397,8 @@ $(function() {
                 <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Something else here</a></li>
                 <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Separated link</a></li>
               </ul>
+            </div>
+            <div id="hover-display">
             </div>
           </div>
         </div>
