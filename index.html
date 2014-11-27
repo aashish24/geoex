@@ -295,45 +295,53 @@ $(function() {
         }
 
         generateHistogram('#histogram', hisdata);
-        myMap
-          .createLayer('feature', {renderer: 'd3Renderer'})
-            .createFeature("point", {selectionAPI: true})
-              .data(data.features)
-              .geoOn(geo.event.pointFeature.mouseover, function(evt) {
-                jsonToTable("#hover-display", evt.data.properties);
-                selectHistogram(evt.data.properties);
-                evt.data.opacity = 0.5;
-                this.modified();        // mark the feature as modified
-                layer.map().draw();     // we must redraw as necessary
-              })
-              .style("fillOpacity", 2.0)
-              .style("fillColor", function (d) {
-                if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
-                  return {r: 163/255, g:227/255, b:110/255};
-                }
-                return {r: 170/255, g:92/255, b:57/255};
-              })
-              .style("radius", function (d) {
-                if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
-                  return Math.ceil(parseFloat(d.properties["4420_1"]) * 0.2);
-                }
-                return Math.ceil(parseFloat(d.properties["4420_2"]) * 0.2);
-              })
-              .style("strokeWidth", function (d) {
-                if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
-                  return Math.ceil(0.2 * parseFloat(d.properties["4420_2"]));
-                }
-                return Math.ceil(0.2 * parseFloat(d.properties["4420_1"]));
-              })
-              .style("strokeColor", function (d) {
-                if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
-                  return {r: 170/255, g:92/255, b:57/255};
-                }
-                return {r: 163/255, g:227/255, b:110/255};
-              })
-              .position(function (d) {
-                return {x: d.geometry.coordinates[0], y: d.geometry.coordinates[1]};
-              });
+        var layer = myMap
+          .createLayer('feature', {renderer: 'd3Renderer'});
+        var feature = layer.createFeature("point", {selectionAPI: true});
+        feature.data(data.features)
+          .style("fillOpacity", function (d) {
+            console.log(d);
+            if (d.opacity) {
+              return d.opacity;
+            } else {
+              return 0.7;
+            }
+          })
+          .style("fillColor", function (d) {
+            if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
+              return {r: 163/255, g:227/255, b:110/255};
+            }
+            return {r: 170/255, g:92/255, b:57/255};
+          })
+          .style("radius", function (d) {
+            if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
+              return Math.ceil(parseFloat(d.properties["4420_1"]) * 0.2);
+            }
+            return Math.ceil(parseFloat(d.properties["4420_2"]) * 0.2);
+          })
+          .style("strokeWidth", function (d) {
+            if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
+              return Math.ceil(0.2 * parseFloat(d.properties["4420_2"]));
+            }
+            return Math.ceil(0.2 * parseFloat(d.properties["4420_1"]));
+          })
+          .style("strokeColor", function (d) {
+            if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
+              return {r: 170/255, g:92/255, b:57/255};
+            }
+            return {r: 163/255, g:227/255, b:110/255};
+          })
+          .position(function (d) {
+            return {x: d.geometry.coordinates[0], y: d.geometry.coordinates[1]};
+          })
+          .geoOn(geo.event.pointFeature.mouseover, function(evt) {
+            evt.data.opacity = 1.0;
+            feature.modified();
+            feature.draw();
+            layer.map().draw();
+            jsonToTable("#hover-display", evt.data.properties);
+            selectHistogram(evt.data.properties);
+          });
         d3Layer = myMap.createLayer('feature', {renderer: 'd3Renderer'});
         drawChoropleth(d3Layer.renderer(), d3Layer.canvas());
 
