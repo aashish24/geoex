@@ -32,8 +32,12 @@ $(function() {
     var data = [{
         label: 'Layers',
         children: [
-            { label: 'Vector', children: [] },
-            { label: 'Raster', children: [] },
+            { label: 'Vector', children: [{
+              label: "US-States"
+            }] },
+            { label: 'Raster', children: [ {
+              label: "OpenStreetMap"
+            }] },
             { label: 'Table', children: [{
               label: 'BRFSS_MMSA_2003  '
             }
@@ -131,13 +135,14 @@ $(function() {
       var colorScale = d3.scale.category20b();
       var color = d3.scale.quantize()
                     .domain([0, d3.max(hisdata, function(d) { return d.yes/d.count; })])
-                    .range(["#ffffd4",
-                            "#fee391",
-                            "#fec44f",
-                            "#fe9929",
-                            "#ec7014",
-                            "#cc4c02",
-                            "#8c2d04"
+                    .range([
+"#e41a1c",
+"#377eb8",
+"#4daf4a",
+"#984ea3",
+"#ff7f00",
+"#ffff33",
+"#a65628"
                            ]);
 
       var projection = d3.geo.mercator();
@@ -180,7 +185,7 @@ $(function() {
         .enter()
         .append("path")
         .attr("d", path)
-        .style("fill-opacity", 0.5)
+        .style("fill-opacity", 0.2)
         .style("fill", function(d) {
           // Get data value
           var value = d.properties.value;
@@ -222,8 +227,6 @@ $(function() {
         });
         for(var attr in stats){
           if (attr !== 'undefined') {
-            console.log(attr);
-            console.log(typeof attr);
             hisdata.push({state: attr,
                           yes: stats[attr].yes,
                           no:  stats[attr].no,
@@ -239,7 +242,7 @@ $(function() {
               .geoOn(geo.event.pointFeature.mouseover, function(d) {
                 console.log(d.data.properties);
               })
-              .style("fillOpacity", 0.6)
+              .style("fillOpacity", 0.9)
               .style("fillColor", function (d) {
                 if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
                   return {r: 163/255, g:227/255, b:110/255};
