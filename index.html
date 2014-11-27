@@ -299,9 +299,12 @@ $(function() {
           .createLayer('feature', {renderer: 'd3Renderer'})
             .createFeature("point", {selectionAPI: true})
               .data(data.features)
-              .geoOn(geo.event.pointFeature.mouseover, function(d) {
-                jsonToTable("#hover-display", d.data.properties);
-                selectHistogram(d.data.properties);
+              .geoOn(geo.event.pointFeature.mouseover, function(evt) {
+                jsonToTable("#hover-display", evt.data.properties);
+                selectHistogram(evt.data.properties);
+                evt.data.opacity = 0.5;
+                this.modified();        // mark the feature as modified
+                layer.map().draw();     // we must redraw as necessary
               })
               .style("fillOpacity", 2.0)
               .style("fillColor", function (d) {
