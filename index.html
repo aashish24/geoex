@@ -133,13 +133,15 @@ $(function() {
     function drawChoropleth(ren, svg) {
       var color = d3.scale.quantize()
                     .domain([0, d3.max(hisdata, function(d) { return d.yes/d.count; })])
-                    .range(["#e41a1c",
-                            "#377eb8",
-                            "#4daf4a",
-                            "#984ea3",
-                            "#ff7f00",
-                            "#ffff33",
-                            "#a65628"]);
+                    .range(["#e6f598",
+                            "#abdda4",
+                            "#66c2a5",
+                            "#3288bd",
+                            "#d53e4f",
+                            "#f46d43",
+                            "#fdae61",
+                            "#fee08b",
+                            ]);
 
       var projection = d3.geo.mercator();
 
@@ -179,7 +181,10 @@ $(function() {
         .enter()
         .append("path")
         .attr("d", path)
-        .style("fill-opacity", 0.2)
+        .style("stroke", "black")
+        .style("stroke-width", 2)
+        .style("stroke-opacity", 0.2)
+        .style("fill-opacity", 0.4)
         .style("fill", function(d) {
           // Get data value
           var value = d.properties.value;
@@ -201,21 +206,37 @@ $(function() {
     function createLegend(node, data) {
       var color = d3.scale.quantize()
                     .domain([0, d3.max(data, function(d) { return d.yes/d.count; })])
-                    .range(["#e41a1c",
-                            "#377eb8",
-                            "#4daf4a",
-                            "#984ea3",
-                            "#ff7f00",
-                            "#ffff33",
-                            "#a65628"]);
+                    .range(["#e6f598",
+                            "#abdda4",
+                            "#66c2a5",
+                            "#3288bd",
+                            "#d53e4f",
+                            "#f46d43",
+                            "#fdae61",
+                            "#fee08b",
+                            ]);
+      var domain = [0, d3.max(data, function(d) { return d.yes/d.count; })];
+      var range = 8;
+      var delta = domain[1] / 8;
+      var legendData = [];
+
+      console.log(domain);
+
+      for (var i = 1; i < 9; ++i) {
+        var legendItemData = {};
+        legendItemData.range = domain[0] + (i - 1) * delta + '-' + i * delta;
+        legendItemData.value = (domain[0] + (i - 1) * delta +  i * delta) * 0.5;
+        console.log(legendItemData.value);
+        legendData.push(legendItemData);
+      }
 
       var svg = d3.select(node).append("svg")
-        .attr("width", 400)
-        .attr("height", 100)
+        .attr("width",  600)
+        .attr("height", 600)
         .append("g");
 
       var legend = svg.selectAll('g')
-                    .data(data)
+                    .data(legendData)
                     .enter()
                     .append('g')
                     .attr('class', 'legend');
@@ -225,18 +246,16 @@ $(function() {
         .attr('y', function(d, i){ return i *  20;})
         .attr('width', 10)
         .attr('height', 10)
+        .style('stroke', "black")
+        .style('fill-opacity', 0.4)
         .style('fill', function(d) {
-          var res = stats[states_hash[d.state]];
-          if (res !== undefined) {
-            return color(res["yes"]/res["count"]);
-          }
-          return "#ffff";
+          return color(d.value);
         });
 
       legend.append('text')
         .attr('x', $(node).width() - 2)
-        .attr('y', function(d, i){ return (i *  20) + 9;})
-        .text(function(d){ return d.state; });
+        .attr('y', function(d, i){ return (i *  20) + 15;})
+        .text(function(d){ return d.range; });
     };
 
     resizeCanvas();
@@ -276,7 +295,7 @@ $(function() {
               .geoOn(geo.event.pointFeature.mouseover, function(d) {
                 console.log(d.data.properties);
               })
-              .style("fillOpacity", 0.9)
+              .style("fillOpacity", 2.0)
               .style("fillColor", function (d) {
                 if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
                   return {r: 163/255, g:227/255, b:110/255};
