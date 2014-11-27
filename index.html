@@ -27,37 +27,8 @@
 </head>
 <body>
 <script>
-var myMap;
-
-function jsonToTable(node, obj) {
-  var jqobj = $(node);
-  jqobj.empty();
-  for (var i in obj) {
-    jqobj.append('<div class="col key">' + i + '<div class="col key-value">' + obj[i]);
-  }
-}
-
-$(function() {
-    var data = [{
-        label: 'Layers',
-        children: [
-            { label: 'Vector', children: [{
-              label: "US-States"
-            }] },
-            { label: 'Raster', children: [ {
-              label: "OpenStreetMap"
-            }] },
-            { label: 'Table', children: [{
-              label: 'BRFSS_MMSA_2003  '
-            }
-            ] },
-        ]}];
-
-    $('#tree').tree({
-        data: data
-    });
-
-    var states_hash = {
+var myMap,
+    states_hash = {
       'Alabama': 'AL',
       'Alaska': 'AK',
       'American Samoa': 'AS',
@@ -119,6 +90,37 @@ $(function() {
       'Wyoming': 'WY'
     };
 
+function jsonToTable(node, obj) {
+  var jqobj = $(node);
+  jqobj.empty();
+  for (var i in obj) {
+    jqobj.append('<div class="col key">' + i + '<div class="col key-value">' + obj[i]);
+  }
+}
+
+function selectHistogram(obj) {
+}
+
+$(function() {
+    var data = [{
+        label: 'Layers',
+        children: [
+            { label: 'Vector', children: [{
+              label: "US-States"
+            }] },
+            { label: 'Raster', children: [ {
+              label: "OpenStreetMap"
+            }] },
+            { label: 'Table', children: [{
+              label: 'BRFSS_MMSA_2003  '
+            }
+            ] },
+        ]}];
+
+    $('#tree').tree({
+        data: data
+    });
+
     var mapOptions = {node: '#map',
                       zoom : 3,
                       center : [0.0, 0.0]},
@@ -164,51 +166,36 @@ $(function() {
       });
 
       d3.json("us-states.json", function(json) {
-        //Merge the ag. data and GeoJSON
-        //Loop through once for each ag. data value
-        // for (var i = 0; i < data.length; i++) {
-        //   //Grab state name
-        //   var dataState = data[i].state;
+        //Find the corresponding state inside the GeoJSON
+        for (var j = 0; j < json.features.length; j++) {
+          var jsonState = json.features[j].properties.name;
+          break;
+        }
 
-        //   //Grab data value, and convert from string to float
-        //   var dataValue = parseFloat(data[i].value);
-
-          //Find the corresponding state inside the GeoJSON
-          for (var j = 0; j < json.features.length; j++) {
-            var jsonState = json.features[j].properties.name;
-            // if (dataState == jsonState) {
-              //Copy the data value into the JSON
-              // json.features[j].properties.value = dataValue;
-              //Stop looking through the JSON
-              break;
-            // }
-          }
-        // }
-
-      svg.selectAll("path")
-        .data(json.features)
-        .enter()
-        .append("path")
-        .attr("d", path)
-        .style("stroke", "black")
-        .style("stroke-width", 2)
-        .style("stroke-opacity", 0.2)
-        .style("fill-opacity", 0.4)
-        .style("fill", function(d) {
-          // Get data value
-          var value = d.properties.value;
-          if (1) {
-            //If value exists…
-            var res = stats[states_hash[d.properties.name]];
-            if (res !== undefined) {
-              return color(res["yes"]/res["count"]);
+        svg.selectAll("path")
+          .data(json.features)
+          .enter()
+          .append("path")
+          .attr("d", path)
+          .style("stroke", "black")
+          .style("stroke-width", 2)
+          .style("stroke-opacity", 0.2)
+          .style("fill-opacity", 0.4)
+          .style("fill", function(d) {
+            // Get data value
+            var value = d.properties.value;
+            if (1) {
+              //If value exists…
+              var res = stats[states_hash[d.properties.name]];
+              if (res !== undefined) {
+                return color(res["yes"]/res["count"]);
+              }
+              return "#ffff";
+            } else {
+              //If value is undefined…
+             return "#ffff";
             }
-            return "#ffff";
-          } else {
-            //If value is undefined…
-           return "#ffff";
-          }
-        });
+          });
       });
     }
 
@@ -304,6 +291,7 @@ $(function() {
               .geoOn(geo.event.pointFeature.mouseover, function(d) {
                 //$("#hover-display").html(d.data.properties.MMSA);
                 jsonToTable("#hover-display", d.data.properties);
+                selectHistogram(d.data.properties);
                 console.log(d.data.properties);
               })
               .style("fillOpacity", 2.0)
