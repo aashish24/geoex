@@ -48,68 +48,67 @@ $(function() {
         data: data
     });
 
-    var states_hash =
-  {
-    'Alabama': 'AL',
-    'Alaska': 'AK',
-    'American Samoa': 'AS',
-    'Arizona': 'AZ',
-    'Arkansas': 'AR',
-    'California': 'CA',
-    'Colorado': 'CO',
-    'Connecticut': 'CT',
-    'Delaware': 'DE',
-    'District Of Columbia': 'DC',
-    'Federated States Of Micronesia': 'FM',
-    'Florida': 'FL',
-    'Georgia': 'GA',
-    'Guam': 'GU',
-    'Hawaii': 'HI',
-    'Idaho': 'ID',
-    'Illinois': 'IL',
-    'Indiana': 'IN',
-    'Iowa': 'IA',
-    'Kansas': 'KS',
-    'Kentucky': 'KY',
-    'Louisiana': 'LA',
-    'Maine': 'ME',
-    'Marshall Islands': 'MH',
-    'Maryland': 'MD',
-    'Massachusetts': 'MA',
-    'Michigan': 'MI',
-    'Minnesota': 'MN',
-    'Mississippi': 'MS',
-    'Missouri': 'MO',
-    'Montana': 'MT',
-    'Nebraska': 'NE',
-    'Nevada': 'NV',
-    'New Hampshire': 'NH',
-    'New Jersey': 'NJ',
-    'New Mexico': 'NM',
-    'New York': 'NY',
-    'North Carolina': 'NC',
-    'North Dakota': 'ND',
-    'Northern Mariana Islands': 'MP',
-    'Ohio': 'OH',
-    'Oklahoma': 'OK',
-    'Oregon': 'OR',
-    'Palau': 'PW',
-    'Pennsylvania': 'PA',
-    'Puerto Rico': 'PR',
-    'Rhode Island': 'RI',
-    'South Carolina': 'SC',
-    'South Dakota': 'SD',
-    'Tennessee': 'TN',
-    'Texas': 'TX',
-    'Utah': 'UT',
-    'Vermont': 'VT',
-    'Virgin Islands': 'VI',
-    'Virginia': 'VA',
-    'Washington': 'WA',
-    'West Virginia': 'WV',
-    'Wisconsin': 'WI',
-    'Wyoming': 'WY'
-  };
+    var states_hash = {
+      'Alabama': 'AL',
+      'Alaska': 'AK',
+      'American Samoa': 'AS',
+      'Arizona': 'AZ',
+      'Arkansas': 'AR',
+      'California': 'CA',
+      'Colorado': 'CO',
+      'Connecticut': 'CT',
+      'Delaware': 'DE',
+      'District Of Columbia': 'DC',
+      'Federated States Of Micronesia': 'FM',
+      'Florida': 'FL',
+      'Georgia': 'GA',
+      'Guam': 'GU',
+      'Hawaii': 'HI',
+      'Idaho': 'ID',
+      'Illinois': 'IL',
+      'Indiana': 'IN',
+      'Iowa': 'IA',
+      'Kansas': 'KS',
+      'Kentucky': 'KY',
+      'Louisiana': 'LA',
+      'Maine': 'ME',
+      'Marshall Islands': 'MH',
+      'Maryland': 'MD',
+      'Massachusetts': 'MA',
+      'Michigan': 'MI',
+      'Minnesota': 'MN',
+      'Mississippi': 'MS',
+      'Missouri': 'MO',
+      'Montana': 'MT',
+      'Nebraska': 'NE',
+      'Nevada': 'NV',
+      'New Hampshire': 'NH',
+      'New Jersey': 'NJ',
+      'New Mexico': 'NM',
+      'New York': 'NY',
+      'North Carolina': 'NC',
+      'North Dakota': 'ND',
+      'Northern Mariana Islands': 'MP',
+      'Ohio': 'OH',
+      'Oklahoma': 'OK',
+      'Oregon': 'OR',
+      'Palau': 'PW',
+      'Pennsylvania': 'PA',
+      'Puerto Rico': 'PR',
+      'Rhode Island': 'RI',
+      'South Carolina': 'SC',
+      'South Dakota': 'SD',
+      'Tennessee': 'TN',
+      'Texas': 'TX',
+      'Utah': 'UT',
+      'Vermont': 'VT',
+      'Virgin Islands': 'VI',
+      'Virginia': 'VA',
+      'Washington': 'WA',
+      'West Virginia': 'WV',
+      'Wisconsin': 'WI',
+      'Wyoming': 'WY'
+    };
 
     var mapOptions = {node: '#map',
                       zoom : 3,
@@ -132,22 +131,17 @@ $(function() {
     }
 
     function drawChoropleth(ren, svg) {
-      var colorScale = d3.scale.category20b();
       var color = d3.scale.quantize()
                     .domain([0, d3.max(hisdata, function(d) { return d.yes/d.count; })])
-                    .range([
-"#e41a1c",
-"#377eb8",
-"#4daf4a",
-"#984ea3",
-"#ff7f00",
-"#ffff33",
-"#a65628"
-                           ]);
+                    .range(["#e41a1c",
+                            "#377eb8",
+                            "#4daf4a",
+                            "#984ea3",
+                            "#ff7f00",
+                            "#ffff33",
+                            "#a65628"]);
 
       var projection = d3.geo.mercator();
-      // var path = d3.geo.path()
-      //            .projection(projection);
 
       var path = d3.geo.path().projection(function (c) {
         var d = ren.worldToDisplay({
@@ -193,7 +187,6 @@ $(function() {
             //If value exists…
             var res = stats[states_hash[d.properties.name]];
             if (res !== undefined) {
-              console.log("result is ", res["yes"]/res["count"]);
               return color(res["yes"]/res["count"]);
             }
             return "#ffff";
@@ -204,6 +197,47 @@ $(function() {
         });
       });
     }
+
+    function createLegend(node, data) {
+      var color = d3.scale.quantize()
+                    .domain([0, d3.max(data, function(d) { return d.yes/d.count; })])
+                    .range(["#e41a1c",
+                            "#377eb8",
+                            "#4daf4a",
+                            "#984ea3",
+                            "#ff7f00",
+                            "#ffff33",
+                            "#a65628"]);
+
+      var svg = d3.select(node).append("svg")
+        .attr("width", 400)
+        .attr("height", 100)
+        .append("g");
+
+      var legend = svg.selectAll('g')
+                    .data(data)
+                    .enter()
+                    .append('g')
+                    .attr('class', 'legend');
+
+      legend.append('rect')
+        .attr('x', $(node).width() - 20)
+        .attr('y', function(d, i){ return i *  20;})
+        .attr('width', 10)
+        .attr('height', 10)
+        .style('fill', function(d) {
+          var res = stats[states_hash[d.state]];
+          if (res !== undefined) {
+            return color(res["yes"]/res["count"]);
+          }
+          return "#ffff";
+        });
+
+      legend.append('text')
+        .attr('x', $(node).width() - 2)
+        .attr('y', function(d, i){ return (i *  20) + 9;})
+        .text(function(d){ return d.state; });
+    };
 
     resizeCanvas();
 
@@ -272,6 +306,8 @@ $(function() {
               });
         d3Layer = myMap.createLayer('feature', {renderer: 'd3Renderer'});
         drawChoropleth(d3Layer.renderer(), d3Layer.canvas());
+
+        createLegend('#legend', hisdata);
         myMap.draw();
       });
     });
@@ -336,6 +372,7 @@ $(function() {
         </div>
       </div>
       <div id='map'></div>
+      <div id='legend'></div>
       <div id='histogram'></div>
     </div>
 </body>
