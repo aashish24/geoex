@@ -100,7 +100,7 @@ function jsonToTable(node, obj) {
 
 function selectHistogram(obj) {
   d3.select('#histogram').selectAll(".bar").each(function(d) {
-    d3.select(this).style("fill", "#3399FF");
+    d3.select(this).style("fill", "#6495ED");
   });
 
   d3.select('#histogram').selectAll(".bar").each(function(d) {
@@ -300,10 +300,8 @@ $(function() {
             .createFeature("point", {selectionAPI: true})
               .data(data.features)
               .geoOn(geo.event.pointFeature.mouseover, function(d) {
-                //$("#hover-display").html(d.data.properties.MMSA);
                 jsonToTable("#hover-display", d.data.properties);
                 selectHistogram(d.data.properties);
-                console.log(d.data.properties);
               })
               .style("fillOpacity", 2.0)
               .style("fillColor", function (d) {
