@@ -154,7 +154,8 @@ $(function() {
 
     function drawChoropleth(ren, svg) {
       var color = d3.scale.quantize()
-                    .domain([0, d3.max(hisdata, function(d) { return d.thought_perc; })])
+                    .domain([0, d3.max(hisdata.data, function(d)
+                      { return d.thought_perc; })])
                     .range(["#e6f598",
                             "#abdda4",
                             "#66c2a5",
@@ -196,6 +197,8 @@ $(function() {
             var value = d.properties.value;
             for (var i = 0; i < hisdata.data.length; ++i) {
               if (d.properties.name === hisdata.data[i].state) {
+                console.log("i ", i);
+                console.log("hisdata.data[i].thought_perc ", hisdata.data[i].thought_perc);
                 return color(hisdata.data[i].thought_perc);
               }
             }

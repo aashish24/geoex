@@ -26,7 +26,7 @@ function createHistogram(node, data) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     x.domain(data.map(function(d) { return d.state; }));
-    y.domain([0, d3.max(data, function(d) { return d.yes/d.count; })]);
+    y.domain([0, d3.max(data, function(d) { return d.thought_perc; })]);
 
     svg.append("g")
         .attr("class", "x axis")
@@ -50,6 +50,6 @@ function createHistogram(node, data) {
         .attr("class", "bar")
         .attr("x", function(d) { return x(d.state); })
         .attr("width", x.rangeBand())
-        .attr("y", function(d) { return y(d.yes/d.count); })
-        .attr("height", function(d) { return height - y(d.yes/d.count); });
+        .attr("y", function(d) { return y(d.thought_perc); })
+        .attr("height", function(d) { return height - y(d.thought_perc); });
 }
