@@ -1,4 +1,4 @@
-function createHistogram(node, data) {
+function createHistogram(node, data, states_hash) {
 
    var margin = {top: 50, right: 20, bottom: 50, left: 38},
         width = $(node).width() - margin.left - margin.right,
@@ -25,7 +25,7 @@ function createHistogram(node, data) {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    x.domain(data.map(function(d) { return d.state; }));
+    x.domain(data.map(function(d) { return states_hash[d.state]; }));
     y.domain([0, d3.max(data, function(d) { return d.thought_perc; })]);
 
     svg.append("g")
@@ -41,14 +41,14 @@ function createHistogram(node, data) {
         .attr("y", 6)
         .attr("dy", "-3.0em")
         .style("text-anchor", "end")
-        .text("Yes (%)");
+        .text("Suicidal Thoughts (%)");
 
     svg.selectAll(".bar")
         .data(data)
     .enter().append("rect")
         .style("fill", "#6495ED")
         .attr("class", "bar")
-        .attr("x", function(d) { return x(d.state); })
+        .attr("x", function(d) { return x(states_hash[d.state]); })
         .attr("width", x.rangeBand())
         .attr("y", function(d) { return y(d.thought_perc); })
         .attr("height", function(d) { return height - y(d.thought_perc); });

@@ -123,7 +123,7 @@ $(function() {
               label: "OpenStreetMap"
             }] },
             { label: 'Table', children: [{
-              label: 'BRFSS_MMSA_2003  '
+              label: 'CDC_Suicidal_Behavior'
             }
             ] },
         ]}];
@@ -152,7 +152,7 @@ $(function() {
       myMap.draw();
     }
 
-    function drawChoropleth(ren, svg) {
+    function createChoropleth(ren, svg) {
       var color = d3.scale.quantize()
                     .domain([0, d3.max(hisdata.data, function(d)
                       { return d.thought_perc; })])
@@ -160,10 +160,10 @@ $(function() {
                             "#abdda4",
                             "#66c2a5",
                             "#3288bd",
-                            "#d53e4f",
-                            "#f46d43",
-                            "#fdae61",
                             "#fee08b",
+                            "#fdae61",
+                            "#f46d43",
+                            "#d53e4f",
                             ]);
 
       var projection = d3.geo.mercator();
@@ -203,6 +203,9 @@ $(function() {
               }
             }
             return "#ffff";
+          })
+          .on("mouseover", function(d) {
+            console.log(d.properties.name);
           });
       });
     }
@@ -214,10 +217,10 @@ $(function() {
                             "#abdda4",
                             "#66c2a5",
                             "#3288bd",
-                            "#d53e4f",
-                            "#f46d43",
-                            "#fdae61",
                             "#fee08b",
+                            "#fdae61",
+                            "#f46d43",
+                            "#d53e4f",
                             ]);
       var domain = [0, d3.max(data, function(d) { return d.thought_perc; })];
       var range = 8;
@@ -267,12 +270,12 @@ $(function() {
     $.get( "depression_data.json", function (depressionData) {
       //depressionData = JSON.parse(depressionData);
       hisdata = depressionData;
-      createHistogram('#histogram', depressionData.data);
+      createHistogram('#histogram', depressionData.data, states_hash);
 
       var layer   = myMap.createLayer('feature', {renderer: 'd3Renderer'}),
           d3Layer = myMap.createLayer('feature', {renderer: 'd3Renderer'});
 
-      drawChoropleth(d3Layer.renderer(), d3Layer.canvas());
+      createChoropleth(d3Layer.renderer(), d3Layer.canvas());
       createLegend('#legend', hisdata.data);
       myMap.draw();
     });
@@ -281,7 +284,6 @@ $(function() {
     myMap.draw();
 });
 </script>
-
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -323,7 +325,7 @@ $(function() {
             </div>
             <div class="dropdown" style="padding:5px">
               <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
-                Hypertension Awareness (Yes %)
+                Suicidal Thoughts (%)
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
