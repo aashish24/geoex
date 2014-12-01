@@ -1,4 +1,4 @@
-function generateHistogram(node, data) {
+function createHistogram(node, data) {
 
    var margin = {top: 50, right: 20, bottom: 50, left: 38},
         width = $(node).width() - margin.left - margin.right,

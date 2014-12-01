@@ -154,7 +154,7 @@ $(function() {
 
     function drawChoropleth(ren, svg) {
       var color = d3.scale.quantize()
-                    .domain([0, d3.max(hisdata, function(d) { return d.yes/d.count; })])
+                    .domain([0, d3.max(hisdata, function(d) { return d.thought_perc; })])
                     .range(["#e6f598",
                             "#abdda4",
                             "#66c2a5",
@@ -193,26 +193,20 @@ $(function() {
           .style("stroke-opacity", 0.2)
           .style("fill-opacity", 0.4)
           .style("fill", function(d) {
-            // Get data value
             var value = d.properties.value;
-            if (1) {
-              //If value exists…
-              var res = stats[states_hash[d.properties.name]];
-              if (res !== undefined) {
-                return color(res["yes"]/res["count"]);
+            for (var i = 0; i < hisdata.data.length; ++i) {
+              if (d.properties.name === hisdata.data[i].state) {
+                return color(hisdata.data[i].thought_perc);
               }
-              return "#ffff";
-            } else {
-              //If value is undefined…
-             return "#ffff";
             }
+            return "#ffff";
           });
       });
     }
 
     function createLegend(node, data) {
       var color = d3.scale.quantize()
-                    .domain([0, d3.max(data, function(d) { return d.yes/d.count; })])
+                    .domain([0, d3.max(data, function(d) { return d.thought_perc; })])
                     .range(["#e6f598",
                             "#abdda4",
                             "#66c2a5",
@@ -222,7 +216,7 @@ $(function() {
                             "#fdae61",
                             "#fee08b",
                             ]);
-      var domain = [0, d3.max(data, function(d) { return d.yes/d.count; })];
+      var domain = [0, d3.max(data, function(d) { return d.thought_perc; })];
       var range = 8;
       var delta = domain[1] / 8;
       var legendData = [];
@@ -267,87 +261,17 @@ $(function() {
 
     resizeCanvas();
 
-    $.get( "mmsa.json", function (mmsaData) {
-      // mmsaData = JSON.parse(mmsaData);
-      mmsaToStateMap = mmsaData.features;
-      $.get( "brfss_mmsa_2003_download.json", function (data) {
-        data.features.forEach(function (mydata) {
-          var stateCode = mmsaToStateMap[mydata.properties.MMSA];
-          // console.log(mydata.properties.MMSA);
-          if (stats.hasOwnProperty(stateCode)) {
-            stats[stateCode]["yes"] += parseFloat(mydata.properties["4420_1"]);
-            stats[stateCode]["no"]  += parseFloat(mydata.properties["4420_2"]);
-            stats[stateCode]["count"] += 1;
-          } else {
-            stats[stateCode] = {};
-            stats[stateCode]["yes"] = parseFloat(mydata.properties["4420_1"]);
-            stats[stateCode]["no"] = parseFloat(mydata.properties["4420_2"]);
-            stats[stateCode]["count"] = 1;
-          }
-        });
-        for(var attr in stats){
-          if (attr !== 'undefined') {
-            hisdata.push({state: attr,
-                          yes: stats[attr].yes,
-                          no:  stats[attr].no,
-                          count: stats[attr].count});
-          }
-        }
+    $.get( "depression_data.json", function (depressionData) {
+      //depressionData = JSON.parse(depressionData);
+      hisdata = depressionData;
+      createHistogram('#histogram', depressionData.data);
 
-        generateHistogram('#histogram', hisdata);
-        var layer = myMap
-          .createLayer('feature', {renderer: 'd3Renderer'});
-        var feature = layer.createFeature("point", {selectionAPI: true});
-        feature.data(data.features)
-          .style("fillOpacity", function (d) {
-            console.log(d);
-            if (d.opacity) {
-              return d.opacity;
-            } else {
-              return 0.7;
-            }
-          })
-          .style("fillColor", function (d) {
-            if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
-              return {r: 163/255, g:227/255, b:110/255};
-            }
-            return {r: 170/255, g:92/255, b:57/255};
-          })
-          .style("radius", function (d) {
-            if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
-              return Math.ceil(parseFloat(d.properties["4420_1"]) * 0.2);
-            }
-            return Math.ceil(parseFloat(d.properties["4420_2"]) * 0.2);
-          })
-          .style("strokeWidth", function (d) {
-            if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
-              return Math.ceil(0.2 * parseFloat(d.properties["4420_2"]));
-            }
-            return Math.ceil(0.2 * parseFloat(d.properties["4420_1"]));
-          })
-          .style("strokeColor", function (d) {
-            if (parseFloat(d.properties["4420_1"]) > parseFloat(d.properties["4420_2"])) {
-              return {r: 170/255, g:92/255, b:57/255};
-            }
-            return {r: 163/255, g:227/255, b:110/255};
-          })
-          .position(function (d) {
-            return {x: d.geometry.coordinates[0], y: d.geometry.coordinates[1]};
-          })
-          .geoOn(geo.event.pointFeature.mouseover, function(evt) {
-            evt.data.opacity = 1.0;
-            feature.modified();
-            feature.draw();
-            layer.map().draw();
-            jsonToTable("#hover-display", evt.data.properties);
-            selectHistogram(evt.data.properties);
-          });
-        d3Layer = myMap.createLayer('feature', {renderer: 'd3Renderer'});
-        drawChoropleth(d3Layer.renderer(), d3Layer.canvas());
+      var layer   = myMap.createLayer('feature', {renderer: 'd3Renderer'}),
+          d3Layer = myMap.createLayer('feature', {renderer: 'd3Renderer'});
 
-        createLegend('#legend', hisdata);
-        myMap.draw();
-      });
+      drawChoropleth(d3Layer.renderer(), d3Layer.canvas());
+      createLegend('#legend', hisdata.data);
+      myMap.draw();
     });
 
     layer = myMap.createLayer('osm');
