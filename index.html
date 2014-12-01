@@ -98,14 +98,13 @@ function jsonToTable(node, obj) {
   }
 }
 
-function selectHistogram(obj) {
+function selectHistogram(state) {
   d3.select('#histogram').selectAll(".bar").each(function(d) {
     d3.select(this).style("fill", "#6495ED");
   });
 
   d3.select('#histogram').selectAll(".bar").each(function(d) {
-    var stateCode = mmsaToStateMap[obj.MMSA];
-    if (d.state == stateCode) {
+    if (d.state == state) {
       d3.select(this).style("fill", "red");
       return;
     }
@@ -205,7 +204,7 @@ $(function() {
             return "#ffff";
           })
           .on("mouseover", function(d) {
-            console.log(d.properties.name);
+            selectHistogram(d.properties.name);
           });
       });
     }
