@@ -204,7 +204,20 @@ $(function() {
             return "#ffff";
           })
           .on("mouseover", function(d) {
+            for (var i = 0; i < hisdata.data.length; ++i) {
+              if (d.properties.name === hisdata.data[i].state) {
+                jsonToTable("#hover-display", hisdata.data[i]);
+              }
+            }
+            d3.select(this).style("stroke", "red");
+            d3.select(this).style("stroke-width", 12);
+            d3.select(this).style("fill-opacity", 0.5);
             selectHistogram(d.properties.name);
+          })
+          .on("mouseout", function(d) {
+            d3.select(this).style("stroke", "black");
+            d3.select(this).style("stroke-width", 2);
+            d3.select(this).style("fill-opacity", 0.4);
           });
       });
     }
